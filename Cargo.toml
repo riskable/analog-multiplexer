@@ -17,15 +17,3 @@ exclude     = [
 
 [dependencies]
 embedded-hal = "0.2.4"
-
-[profile.dev]
-opt-level = 1
-codegen-units = 16
-debug = true
-lto = false
-
-[profile.release]
-opt-level = "s"     # optimize for size
-codegen-units = 1   # better optimizations
-debug = true        # symbols are nice and they don't increase the size on Flash
-lto = true          # better optimizations
