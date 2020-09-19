@@ -14,7 +14,7 @@ exclude     = [
 ]
 
 [dependencies]
-analog-multiplexer = { path = "../../../analog_multiplexer" }
+analog-multiplexer = { path = "../../../analog-multiplexer" }
 embedded-hal = "0.2.4"
 panic-halt = "0.2"
 cortex-m = "0.6.3"
