@@ -1,0 +1,41 @@
+[package]
+name = "analog-multiplexer-bluepill"
+version = "0.1.0"
+authors = ["Riskable <riskable@youknowwhat.com>"]
+edition = "2018"
+description = "Library for working with 4015 and 4067 series analog multiplexers"
+license     = "Apache-2.0"
+readme      = "README.md"
+categories  = ["embedded", "hardware-support", "no-std"]
+keywords    = ["4051", "4067", "74hc4067", "74hc4051"]
+exclude     = [
+    ".gitignore",
+    "target/*"
+]
+
+[dependencies]
+analog-multiplexer = { path = "../../../analog_multiplexer" }
+embedded-hal = "0.2.4"
+panic-halt = "0.2"
+cortex-m = "0.6.3"
+cortex-m-rtic = "0.5.5"
+
+[dependencies.rtt-target]
+version = "0.2.2"
+features = ["cortex-m"]
+
+[dependencies.stm32f1xx-hal]
+version = "0.6.1"
+features = ["rt", "stm32f103", "medium"]
+
+[profile.dev]
+opt-level = 1
+codegen-units = 16
+debug = true
+lto = false
+
+[profile.release]
+opt-level = "s"     # optimize for size
+codegen-units = 1   # better optimizations
+debug = true        # symbols are nice and they don't increase the size on Flash
+lto = true          # better optimizations

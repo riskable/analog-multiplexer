@@ -1,0 +1,31 @@
+[package]
+name = "analog-multiplexer"
+version = "0.1.0"
+authors = ["Riskable <riskable@youknowwhat.com>"]
+edition = "2018"
+description = "Library for working with 4015 and 4067 series (e.g. 74HC4067) analog multiplexers"
+license     = "Apache-2.0"
+readme      = "README.md"
+categories  = ["embedded", "hardware-support", "no-std"]
+keywords    = ["embedded-hal-driver", "4051", "4067", "74hc4067", "74hc4051"]
+repository = "https://github.com/riskable/analog-multiplexer"
+documentation = "https://docs.rs/analog-multiplexer"
+exclude     = [
+    ".gitignore",
+    "target/*"
+]
+
+[dependencies]
+embedded-hal = "0.2.4"
+
+[profile.dev]
+opt-level = 1
+codegen-units = 16
+debug = true
+lto = false
+
+[profile.release]
+opt-level = "s"     # optimize for size
+codegen-units = 1   # better optimizations
+debug = true        # symbols are nice and they don't increase the size on Flash
+lto = true          # better optimizations
