@@ -1,6 +1,6 @@
 [package]
 name = "analog-multiplexer"
-version = "1.0.0"
+version = "1.0.1"
 authors = ["Riskable <riskable@youknowwhat.com>"]
 edition = "2018"
 description = "A platform agnostic driver for 4051 and 4067 series analog multiplexers targetting the Rust embedded-hal"
