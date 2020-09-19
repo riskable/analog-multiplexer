@@ -4,11 +4,14 @@ This Blue Pill board example reads all 16 (or 8 with minor changes) channels on 
 
 # Usage
 
-Here's an imaginary example using a 74HC4067 with a Blue Pill (stm32f104) board...
-
 ```shell
+$ cd examples/bluepill # Make sure you're in the right place
 $ cargo run --example read_all
 ```
+
+# Demonstration
+
+Here's an imaginary example using a 74HC4067 with a Blue Pill (stm32f104) board...
 
 Here's me using it to read a hall effect sensor on channel 15:
 
