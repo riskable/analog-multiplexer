@@ -9,9 +9,9 @@ at will.
 
 # Supported Hardware (Analog Multiplexers)
 
-    * 4067 series: [74HC4067](https://assets.nexperia.com/documents/data-sheet/74HC_HCT4067.pdf)
-    * 4051 series: [74HC4051](https://www.ti.com/lit/ds/symlink/cd74hc4051-ep.pdf)
-    * ...and any other similar IC that uses three or four channel select pins
+* 4067 series: [74HC4067](https://assets.nexperia.com/documents/data-sheet/74HC_HCT4067.pdf)
+* 4051 series: [74HC4051](https://www.ti.com/lit/ds/symlink/cd74hc4051-ep.pdf)
+* ...and any other similar IC that uses three or four channel select pins
 
 # Usage
 
