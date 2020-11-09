@@ -74,6 +74,7 @@
 
 extern crate embedded_hal as hal;
 
+use core::convert::Infallible;
 use hal::digital::v2::OutputPin;
 
 /// Provides an interface for setting the active channel
@@ -247,5 +248,18 @@ impl<Pins: Output> Multiplexer<Pins> {
     pub fn disable(&mut self) {
         self.pins.enable();
         self.enabled = false;
+    }
+}
+
+/// A DummyPin for when you've got your EN (enable) pin run to GND
+/// (the analog multiplexer is always enabled)
+pub struct DummyPin;
+impl OutputPin for DummyPin {
+    type Error = Infallible;
+    fn set_low(&mut self) -> Result<(), Self::Error> {
+        Ok(())
+    }
+    fn set_high(&mut self) -> Result<(), Self::Error> {
+        Ok(())
     }
 }
