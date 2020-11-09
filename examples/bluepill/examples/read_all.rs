@@ -17,7 +17,7 @@
 //! your own Blue Pill board.  The default configuration uses:
 //!
 //! * `PB0`: Connected to `Z` (analog output on the multilpexer)
-//! * `PB5`: Connected to `EN` (enable pin)
+//! * `PB5`: Connected to `EN` (enable pin--if you don't just have it run to GND)
 //! * `PB12, PB13, PB14, PB15`: Connected to `S0, S1, S2, S3` (channel select pins)
 //!
 //! **NOTE::** You can just run `EN` to ground to keep it always enabled.
@@ -27,22 +27,22 @@
 
 // The part that matters:
 extern crate analog_multiplexer;
-use analog_multiplexer::Multiplexer;
+use analog_multiplexer::{DummyPin, Multiplexer};
 // This is just a convenient container for keeping track of channel data and pretty-printing it:
 mod channels; // Look at channels/mod.rs if you're curious how it works
 
 extern crate panic_halt;
-use rtt_target::{rtt_init_print, rprintln};
-use embedded_hal::digital::v2::OutputPin;
 use cortex_m;
+use embedded_hal::digital::v2::OutputPin;
 use rtic::app;
 use rtic::cyccnt::U32Ext as _;
-use stm32f1xx_hal::gpio::{gpioc::PC13, Output, PushPull, State, Analog};
+use rtt_target::{rprintln, rtt_init_print};
+use stm32f1xx_hal::gpio::{gpioc::PC13, Analog, Output, PushPull, State};
 // NOTE: Change these to the pins you plan to use for S0, S1, etc:
-use stm32f1xx_hal::gpio::gpiob::{PB0, PB5, PB12, PB13, PB14, PB15};
+use stm32f1xx_hal::gpio::gpiob::{PB0, PB12, PB13, PB14, PB15, PB5};
 // ...you'll also need to change them in the `type` declarations below...
-use stm32f1xx_hal::{adc};
-use stm32f1xx_hal::pac::{ADC1};
+use stm32f1xx_hal::adc;
+use stm32f1xx_hal::pac::ADC1;
 use stm32f1xx_hal::prelude::*;
 
 // Define which pins go to where on your analog multiplexer (for RTIC's `Resources`)
@@ -50,8 +50,8 @@ type S0 = PB12<Output<PushPull>>; // These just make things easier to read/reaso
 type S1 = PB13<Output<PushPull>>; // aka "very expressive"
 type S2 = PB14<Output<PushPull>>;
 type S3 = PB15<Output<PushPull>>; // You can comment this out if using 8-channel (74HC4051)
-type EN = PB5<Output<PushPull>>; // NOTE: You can use an unused pin if not using this feature
-// NOTE: embedded_hal really needs a DummyPin feature for things like unused driver pins!
+type EN = DummyPin; // If EN is connected to GND to keep it always enabled
+// type EN = PB5<Output<PushPull>>; // If you want to enable/disable the multiplexer on-the-fly
 // You can swap which line is commented below to use an 8-channel instead of 16:
 type Multiplex = Multiplexer<(S0, S1, S2, S3, EN)>; // If using 16-channel (74HC4067)
 // type Multiplex = Multiplexer<(S0, S1, S2, EN)>; // If using 8-channel (74HC4051)
@@ -66,16 +66,19 @@ const APP: () = {
     // `LateResources` struct in init (RTIC stuff)
     struct Resources {
         led: PC13<Output<PushPull>>,
-        multiplexer: Multiplex, // If we didn't use the types above this would be very messy
+        multiplexer: Multiplex, // If we didn't use the type aliases above this would be very messy
         ch_states: channels::ChannelValues,
         adc1: adc::Adc<ADC1>,
         analog_pin: PB0<Analog>,
     }
 
-    // This is needed for probe-rs to work with RTIC at present (20200919).  Won't be needed forever (they're working on it =)
+    // This is needed for probe-rs to work with RTIC at present (20200919).
+    // Won't be needed forever (they're working on it =)
     #[idle]
     fn idle(_cx: idle::Context) -> ! {
-        loop {cortex_m::asm::nop();} // Don't do anything at all
+        loop {
+            cortex_m::asm::nop();
+        } // Don't do anything at all
     }
 
     // NOTE: Most of this is rtic and cortex-m boilerplate.
@@ -133,19 +136,18 @@ const APP: () = {
             .pb15
             .into_push_pull_output_with_state(&mut gpiob.crh, State::Low);
 
-        // NOTE: We need something like a DummyPin option in embedded_hal!
-        // Enable pin...  If you want to be able to enable/disable the multiplexer on-the-fly
-        let en = gpiob
-            .pb5
-            .into_push_pull_output_with_state(&mut gpiob.crl, State::Low);
-            // Just run a wire from EN to GND to keep it enabled all the time
+        let en = DummyPin; // Use the DummyPin if you have it always enabled (e.g. connected to GND)
+        // If you want to be able to enable/disable the multiplexer on-the-fly:
+        // let en = gpiob
+        //     .pb5
+        //     .into_push_pull_output_with_state(&mut gpiob.crl, State::Low);
 
         // ** ANALOG MULTIPLEXER STUFF **
         // Setup the Multiplexer with our configured pins (swap comments below for 8 channel)
-        let pins = (s0,s1,s2,s3,en); // For 16-channel (74HC4067)
-        // let pins = (s0,s1,s2,en); // For 8-channel (74HC4051)
+        let pins = (s0, s1, s2, s3, en); // For 16-channel (74HC4067)
+                                         // let pins = (s0,s1,s2,en); // For 8-channel (74HC4051)
         let mut multiplexer = Multiplexer::new(pins);
-        multiplexer.enable(); // Make sure it's enabled
+        multiplexer.enable(); // Just an example (it gets enabled when you instantiate it)
 
         // Keep track of channel states/values (for pretty printing)
         let ch_states: channels::ChannelValues = Default::default();
@@ -158,7 +160,7 @@ const APP: () = {
             multiplexer: multiplexer,
             ch_states: ch_states,
             analog_pin: analog_pin, // NOTE: Wish we didn't need BOTH
-            adc1: adc1              // the pin and the ADC to read it
+            adc1: adc1,             // the pin and the ADC to read it
         }
     }
 
@@ -166,7 +168,7 @@ const APP: () = {
     fn readall(cx: readall::Context) {
         // Use the safe local `static mut` of RTIC
         static mut LED_STATE: bool = false; // RTIC's blink scheduler boilerplate
-        // These are just here to keep the code nice and concise:
+                                            // These are just here to keep the code nice and concise:
         let multiplexer = cx.resources.multiplexer;
         let ch_states = cx.resources.ch_states;
         let adc1 = cx.resources.adc1;
