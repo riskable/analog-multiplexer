@@ -1,6 +1,6 @@
 [package]
 name = "analog-multiplexer-bluepill"
-version = "0.1.0"
+version = "0.1.1"
 authors = ["Riskable <riskable@youknowwhat.com>"]
 edition = "2018"
 description = "Library for working with 4015 and 4067 series analog multiplexers"
@@ -17,7 +17,7 @@ exclude     = [
 analog-multiplexer = { path = "../../../analog-multiplexer" }
 embedded-hal = "0.2.4"
 panic-halt = "0.2"
-cortex-m = "0.6.3"
+cortex-m = "0.6.4"
 cortex-m-rtic = "0.5.5"
 
 [dependencies.rtt-target]
@@ -25,7 +25,7 @@ version = "0.2.2"
 features = ["cortex-m"]
 
 [dependencies.stm32f1xx-hal]
-version = "0.6.1"
+version = "0.7.0"
 features = ["rt", "stm32f103", "medium"]
 
 [profile.dev]
